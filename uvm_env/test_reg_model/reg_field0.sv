@@ -10,12 +10,6 @@ class reg_field0 extends uvm_reg_field;
     super.new(name, parent, lsb, width);
   endfunction
 
-virtual function void build();
-  super.build();
-  // Additional build logic can be added here if needed
-   configure(this, 8, 0, "RW", 1, 8'h0, 1, 1, 0);
-
-endfunction
 virtual function void do_print(uvm_printer printer);
     super.do_print(printer);
     printer.print_field("field_name", this.get_name());
@@ -24,3 +18,4 @@ virtual function void do_print(uvm_printer printer);
   endfunction
 
 endclass : reg_field0
+`endif // REG_FIELD0_SV

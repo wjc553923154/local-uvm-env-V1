@@ -12,6 +12,8 @@ class test_env extends uvm_env;
   test_agent o_agent;
   test_scoreboard scoreboard;
   test_ref_model ref_model;
+  reg_adapter adapter;
+  reg_predictor predictor;
 
   uvm_tlm_analysis_fifo #(test_traction) i_agent_mon_to_refmodel_fifo;
   uvm_tlm_analysis_fifo #(test_traction) o_agent_mon_to_scb_fifo;
@@ -33,6 +35,9 @@ class test_env extends uvm_env;
       cfg = test_cfg::type_id::create("cfg");
     end
 
+    // Create register block and adapter
+    adapter = reg_adapter::type_id::create("adapter");
+    predictor = reg_predictor::type_id::create("predictor", this);
 
     // Create agent and scoreboard components
     i_agent = test_agent::type_id::create("i_agent", this);
@@ -52,7 +57,12 @@ class test_env extends uvm_env;
     // Connect phase
     virtual function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
-    `uvm_info(get_type_name(), "connect_phase", UVM_LOW)   
+    `uvm_info(get_type_name(), "connect_phase", UVM_LOW)
+    //connect predictor
+    predictor.map = reg_model.default_map;
+    predictor.adapter = adapter; 
+    i_agent.monitor.analysis_port.connect(predictor.req_in);
+    o_agent.monitor.analysis_port.connect(predictor.rsp_in);  
     // Connect agent ports
     i_agent.monitor.mon_to_refmodel_port.connect(i_agent_mon_to_refmodel_fifo.uvm_analysis_port);
     ref_model.mon_to_c_port.connect(i_agent_mon_to_refmodel_fifo.uvm_analysis_export);
